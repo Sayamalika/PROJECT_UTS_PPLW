@@ -1,4 +1,7 @@
 # PROJECT_UTS_PPLW
-praktikum framework, di mana kita akan membuat database dan php untuk persewaan mobil demi menyelesaikan tugas uts
 
-info discord dong
+Anggota Kelompok:
+1. Aurel Sasono Jati (434251053)
+2. Bagus Alafiat Ramadhani (43451054)
+3. Syah Rizzal Ayyasy (434251044)
+4. 
