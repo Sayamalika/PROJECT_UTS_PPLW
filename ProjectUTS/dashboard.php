@@ -80,6 +80,7 @@ if ($role === 'admin') {
                                 <th>Mobil</th>
                                 <th>Total</th>
                                 <th>Status</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -89,6 +90,11 @@ if ($role === 'admin') {
                                 <td><?= htmlspecialchars($transaksi['nama_mobil']) ?></td>
                                 <td>Rp <?= number_format($transaksi['total_biaya'], 0, ',', '.') ?></td>
                                 <td><?= htmlspecialchars($transaksi['status_transaksi']) ?></td>
+                                <td> <?php if ($transaksi['status_transaksi'] === 'menunggu'): ?>
+                                    <a href="approve.php?id=<?= $transaksi['id_transaksi'] ?>">Setujui</a>
+                                    <a href="reject.php?id=<?= $transaksi['id_transaksi'] ?>">Tolak</a>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
