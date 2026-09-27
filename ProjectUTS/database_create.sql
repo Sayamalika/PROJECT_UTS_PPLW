@@ -1,1 +1,1 @@
-CREATE DATABASE IF persewaan_mobil_pak_rama ENCODING 'UTF-8';
+CREATE DATABASE persewaan_mobil_pak_rama ENCODING 'UTF-8';
