@@ -153,7 +153,7 @@ class User{
             throw new InvalidArgumentException("semua informasi harus diisi");
         }
 
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new InvalidArgumentException("format email tidak sesuai!");
         }
 
@@ -173,7 +173,7 @@ class User{
 
         if (!$user) return null;
 
-        if(password_verify($password, $user['password'])) return null;
+        if(!password_verify($password, $user['password'])) return null;
 
         return $user;
     }
