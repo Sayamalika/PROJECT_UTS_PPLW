@@ -8,3 +8,4 @@ Anggota Kelompok:
 5. Yosi Syafitri Pramono (434251070)
 5. Barby Laorena Vincent Tania (434251055)
 6. Prissilya Naela Margareth Siregar (434251071)
+7. Shafilla Anaya Wahyu Nursari (434251039)
