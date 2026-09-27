@@ -30,6 +30,22 @@ CREATE TABLE IF NOT EXISTS transaksi (
     FOREIGN KEY (id_mobil) REFERENCES mobil(id_mobil)
 );
 
+UPDATE transaksi SET status_transaksi = 'menunggu' WHERE status_transaksi = 'berjalan';
+UPDATE transaksi SET status_transaksi = 'ditolak' WHERE status_transaksi = 'batal';
+
+ALTER TABLE transaksi
+DROP CONSTRAINT transaksi_status_transaksi_check;
+
+ALTER TABLE transaksi
+ALTER COLUMN status_transaksi SET DEFAULT 'menunggu';
+
+ALTER TABLE transaksi
+ADD CONSTRAINT transaksi_status_transaksi_check
+CHECK (status_transaksi IN ('menunggu', 'disetujui', 'ditolak', 'selesai'));
+
+ADD COLUMN metode_pembayaran VARCHAR(50),
+ADD COLUMN status_pembayaran VARCHAR(30) DEFAULT 'belum_bayar';
+
 INSERT INTO users (nama, email, password, role)
 VALUES (
     'Administrator',

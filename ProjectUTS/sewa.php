@@ -16,7 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user']['id_user'],
             (int) ($_POST['id_mobil'] ?? 0),
             $_POST['tanggal_sewa'] ?? '',
-            $_POST['tanggal_kembali'] ?? ''
+            $_POST['tanggal_kembali'] ?? '',
+            $_POST['metode_pembayaran'] ?? ''
         );
 
         $message = 'Transaksi berhasil dibuat. Total biaya: Rp ' . number_format((float) $result['total_biaya'], 0, ',', '.');
@@ -51,6 +52,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
             <input type="date" name="tanggal_sewa" required>
             <input type="date" name="tanggal_kembali" required>
+            <select name="metode_pembayaran" required>
+                <option value="">
+                    Pilih Metode Pembayaran
+                </option>
+                <option value="Transfer BCA">
+                    Transfer BCA
+                </option>
+                <option value="Transfer BRI">
+                    Transfer BRI
+                </option>
+                <option value="Transfer Mandiri">
+                    Transfer Mandiri
+                </option>
+                <option value="Cash">
+                    Cash
+                </option>
+</select>
             <button type="submit">Buat Transaksi</button>
         </form>
 
