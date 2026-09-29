@@ -13,9 +13,7 @@ $transaksiModel = new Transaksi();
 if ($role === 'admin') {
     $mobilList = $mobilModel->getAll();
     $transaksiList = $transaksiModel->getAll();
-
-    // Statistik untuk kartu KPI
-    $totalArmada    = count($mobilList);
+    $totalmobil    = count($mobilList);
     $mobilTersedia  = count(array_filter($mobilList, fn($m) => $m['status'] === 'tersedia'));
     $totalTransaksi = count($transaksiList);
     $trxMenunggu    = count(array_filter($transaksiList, fn($t) => $t['status_transaksi'] === 'menunggu'));
@@ -25,9 +23,9 @@ if ($role === 'admin') {
         fn($t) => $t['status_transaksi'] === 'disetujui' ? (float) $t['total_biaya'] : 0,
         $transaksiList
     ));
-    $persenTersedia = $totalArmada > 0 ? round($mobilTersedia / $totalArmada * 100) : 0;
+    $persenTersedia = $totalmobil > 0 ? round($mobilTersedia / $totalmobil * 100) : 0;
 
-    $navCounts  = ['armada' => $totalArmada, 'transaksi' => $totalTransaksi];
+    $navCounts  = ['mobil' => $totalmobil, 'transaksi' => $totalTransaksi];
     $showSearch = true;
 } else {
     $availableCars    = $mobilModel->getAvailable();
@@ -60,7 +58,6 @@ if (!function_exists('initials')) {
     }
 }
 if (!function_exists('statusBadge')) {
-    /** Badge berwarna untuk status mobil / transaksi. */
     function statusBadge(string $status): string
     {
         $map = [
@@ -85,7 +82,7 @@ $userName   = $user['nama'] ?? ucfirst($role);
 
 $icons = [
     'dashboard' => 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z',
-    'armada'    => 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
+    'mobil'    => 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
     'transaksi' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01',
     'plus'      => 'M12 4v16m8-8H4',
     'logout'    => 'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1',
@@ -94,14 +91,14 @@ $icons = [
 if ($role === 'admin') {
     $menu = [
         ['dashboard',    'Dashboard',         'dashboard.php',            'dashboard', null],
-        ['armada',       'Data Armada',       'dashboard.php#daftar-mobil',     'armada', $navCounts['armada'] ?? null],
+        ['mobil',       'Data mobil',       'dashboard.php#daftar-mobil',     'mobil', $navCounts['mobil'] ?? null],
         ['transaksi',    'Riwayat Transaksi', 'dashboard.php#daftar-transaksi', 'transaksi', $navCounts['transaksi'] ?? null],
         ['mobil_create', 'Tambah Mobil',      'mobil_create.php',         'plus', null],
     ];
 } else {
     $menu = [
         ['dashboard', 'Dashboard',  'dashboard.php', 'dashboard', null],
-        ['sewa',      'Sewa Mobil', 'sewa.php',      'armada', null],
+        ['sewa',      'Sewa Mobil', 'sewa.php',      'mobil', null],
     ];
 }
 
@@ -154,8 +151,6 @@ function navIcon(string $path, string $cls = 'w-5 h-5'): string
 </head>
 <body class="font-sans text-slate-800 antialiased min-h-screen bg-slate-50 flex flex-col">
 <div class="flex min-h-screen w-full">
-
-    <!-- Sidebar -->
     <aside class="hidden lg:flex w-64 bg-slate-900 border-r border-slate-800 flex-col justify-between shrink-0 fixed inset-y-0 left-0 z-30 select-none">
         <div>
             <div class="px-6 py-5 flex items-center gap-3 border-b border-slate-800/80">
@@ -208,7 +203,6 @@ function navIcon(string $path, string $cls = 'w-5 h-5'): string
         </div>
     </aside>
 
-    <!-- Konten utama -->
     <div class="app-main flex-1 lg:ml-64 flex flex-col min-w-0">
         <header class="h-16 bg-white border-b border-slate-200 sticky top-0 z-20 px-4 sm:px-8 flex items-center justify-between shadow-sm">
             <?php if ($showSearch): ?>
@@ -224,7 +218,6 @@ function navIcon(string $path, string $cls = 'w-5 h-5'): string
             <?php endif; ?>
 
             <div class="flex items-center gap-3 pl-4">
-                <!-- Navigasi ringkas untuk layar kecil -->
                 <div class="flex lg:hidden items-center gap-2 text-xs font-semibold">
                     <?php foreach ($menu as [$key, $label, $href]): ?>
                         <a href="<?= h($href) ?>" class="px-2.5 py-1.5 rounded-lg <?= ($activePage ?? '') === $key ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600' ?>"><?= h($label) ?></a>
@@ -243,14 +236,10 @@ function navIcon(string $path, string $cls = 'w-5 h-5'): string
 
 <?php if ($role === 'admin'): ?>
 
-    <!-- Banner -->
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-900 p-8 text-white shadow-xl shadow-indigo-950/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
         <div class="relative z-10">
             <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/30 text-indigo-200 border border-indigo-400/20 inline-flex items-center gap-1.5 mb-3">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                Sistem Rental Aktif
-            </span>
             <h1 class="text-2xl lg:text-3xl font-extrabold tracking-tight">Kelola Data Mobil &amp; Transaksi</h1>
             <p class="text-indigo-200/80 mt-1 max-w-xl text-sm leading-relaxed">
                 Pantau ketersediaan unit sewa, atur tarif harian, serta proses verifikasi transaksi pelanggan secara real-time.
@@ -265,20 +254,19 @@ function navIcon(string $path, string $cls = 'w-5 h-5'): string
         </div>
     </div>
 
-    <!-- KPI -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Armada</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total mobil</span>
                 <div class="p-2.5 rounded-xl bg-indigo-50 text-brand-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                 </div>
             </div>
             <div class="mt-3 flex items-baseline gap-2">
-                <span class="text-3xl font-extrabold text-slate-900 tracking-tight"><?= $totalArmada ?></span>
+                <span class="text-3xl font-extrabold text-slate-900 tracking-tight"><?= $totalmobil ?></span>
                 <span class="text-xs font-semibold text-slate-500">Unit Terdaftar</span>
             </div>
-            <div class="mt-2 text-xs text-indigo-600 font-medium"><?= $totalArmada - $mobilTersedia ?> unit sedang disewa / perbaikan</div>
+            <div class="mt-2 text-xs text-indigo-600 font-medium"><?= $totalmobil - $mobilTersedia ?> unit sedang disewa / perbaikan</div>
         </div>
 
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
@@ -328,8 +316,8 @@ function navIcon(string $path, string $cls = 'w-5 h-5'): string
         <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <div class="flex items-center gap-3">
-                    <h2 class="text-lg font-bold text-slate-900">Daftar Mobil (Armada)</h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-brand-700 border border-brand-200"><?= $totalArmada ?> Unit</span>
+                    <h2 class="text-lg font-bold text-slate-900">Daftar Mobil (mobil)</h2>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-brand-700 border border-brand-200"><?= $totalmobil ?> Unit</span>
                 </div>
                 <p class="text-xs text-slate-500 mt-1">Katalog mobil rental yang terdaftar di sistem</p>
             </div>
@@ -401,7 +389,7 @@ function navIcon(string $path, string $cls = 'w-5 h-5'): string
             </table>
         </div>
         <div class="p-4 bg-slate-50/60 border-t border-slate-100 text-xs text-slate-500">
-            Menampilkan <span id="countMobil"><?= $totalArmada ?></span> dari <?= $totalArmada ?> armada mobil yang terdaftar
+            Menampilkan <span id="countMobil"><?= $totalmobil ?></span> dari <?= $totalmobil ?> mobil mobil yang terdaftar
         </div>
     </section>
 
