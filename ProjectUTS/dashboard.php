@@ -13,6 +13,8 @@ $transaksiModel = new Transaksi();
 if ($role === 'admin') {
     $mobilList = $mobilModel->getAll();
     $transaksiList = $transaksiModel->getAll();
+
+    // Statistik untuk kartu KPI
     $totalmobil    = count($mobilList);
     $mobilTersedia  = count(array_filter($mobilList, fn($m) => $m['status'] === 'tersedia'));
     $totalTransaksi = count($transaksiList);
@@ -58,6 +60,7 @@ if (!function_exists('initials')) {
     }
 }
 if (!function_exists('statusBadge')) {
+    /** Badge berwarna untuk status mobil / transaksi. */
     function statusBadge(string $status): string
     {
         $map = [
@@ -80,33 +83,6 @@ $navCounts  = $navCounts ?? [];
 $showSearch = $showSearch ?? false;
 $userName   = $user['nama'] ?? ucfirst($role);
 
-$icons = [
-    'dashboard' => 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z',
-    'mobil'    => 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
-    'transaksi' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01',
-    'plus'      => 'M12 4v16m8-8H4',
-    'logout'    => 'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1',
-];
-
-if ($role === 'admin') {
-    $menu = [
-        ['dashboard',    'Dashboard',         'dashboard.php',            'dashboard', null],
-        ['mobil',       'Data mobil',       'dashboard.php#daftar-mobil',     'mobil', $navCounts['mobil'] ?? null],
-        ['transaksi',    'Riwayat Transaksi', 'dashboard.php#daftar-transaksi', 'transaksi', $navCounts['transaksi'] ?? null],
-        ['mobil_create', 'Tambah Mobil',      'mobil_create.php',         'plus', null],
-    ];
-} else {
-    $menu = [
-        ['dashboard', 'Dashboard',  'dashboard.php', 'dashboard', null],
-        ['sewa',      'Sewa Mobil', 'sewa.php',      'mobil', null],
-    ];
-}
-
-function navIcon(string $path, string $cls = 'w-5 h-5'): string
-{
-    return '<svg class="' . $cls . '" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="' . $path
-         . '" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>';
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -151,83 +127,34 @@ function navIcon(string $path, string $cls = 'w-5 h-5'): string
 </head>
 <body class="font-sans text-slate-800 antialiased min-h-screen bg-slate-50 flex flex-col">
 <div class="flex min-h-screen w-full">
-    <aside class="hidden lg:flex w-64 bg-slate-900 border-r border-slate-800 flex-col justify-between shrink-0 fixed inset-y-0 left-0 z-30 select-none">
-        <div>
-            <div class="px-6 py-5 flex items-center gap-3 border-b border-slate-800/80">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M8 17h.01M16 17h.01M5 11l1.5-4.5A2 2 0 018.4 5h7.2a2 2 0 011.9 1.5L19 11m-14 0h14m-14 0a2 2 0 00-2 2v4a2 2 0 002 2h1a2 2 0 002-2v-1h8v1a2 2 0 002 2h1a2 2 0 002-2v-4a2 2 0 00-2-2" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
+
+    <!-- Header -->
+    <div class="app-main flex-1 flex flex-col min-w-0">
+        <header class="h-16 bg-white border-b border-slate-200 sticky top-0 z-20 px-4 sm:px-8 flex items-center justify-between gap-4 shadow-sm">
+            <a href="dashboard.php" class="flex items-center gap-3 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 17h.01M16 17h.01M5 11l1.5-4.5A2 2 0 018.4 5h7.2a2 2 0 011.9 1.5L19 11m-14 0h14m-14 0a2 2 0 00-2 2v4a2 2 0 002 2h1a2 2 0 002-2v-1h8v1a2 2 0 002 2h1a2 2 0 002-2v-4a2 2 0 00-2-2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </div>
-                <div>
-                    <span class="text-white font-bold tracking-tight text-lg block leading-none">AutoRent</span>
-                    <span class="text-xs text-indigo-400 font-medium tracking-wide uppercase mt-1 inline-block">Management v1.0</span>
-                </div>
+                <span class="font-bold tracking-tight text-lg text-slate-900">AutoRent</span>
+            </a>
+
+            <div class="relative flex-1 max-w-lg hidden sm:block">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                </span>
+                <input id="globalSearch" type="text" placeholder="Cari unit mobil, nomor plat, atau customer..."
+                       class="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-slate-700 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
             </div>
-
-            <nav class="mt-6 px-3 space-y-1">
-                <?php foreach ($menu as [$key, $label, $href, $icon, $badge]): ?>
-                    <?php $active = ($activePage ?? '') === $key; ?>
-                    <a href="<?= h($href) ?>"
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors <?= $active
-                           ? 'bg-brand-600 text-white font-semibold shadow-md shadow-brand-600/20'
-                           : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 font-medium' ?>">
-                        <?= navIcon($icons[$icon], 'w-5 h-5 ' . ($active ? 'text-indigo-200' : '')) ?>
-                        <span class="flex-1"><?= h($label) ?></span>
-                        <?php if ($badge !== null): ?>
-                            <span class="px-2 py-0.5 text-xs rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700"><?= (int) $badge ?></span>
-                        <?php endif; ?>
-                    </a>
-                <?php endforeach; ?>
-            </nav>
-        </div>
-
-        <div class="p-4 border-t border-slate-800">
-            <div class="flex items-center justify-between bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/60">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="relative shrink-0">
-                        <div class="w-9 h-9 rounded-lg bg-indigo-600/30 text-indigo-400 font-bold text-sm flex items-center justify-center border border-indigo-500/30">
-                            <?= h(initials($userName)) ?>
-                        </div>
-                        <span class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900 ring-1 ring-emerald-400/50"></span>
-                    </div>
-                    <div class="min-w-0">
-                        <div class="text-sm font-semibold text-white truncate">Halo, <?= h($userName) ?></div>
-                        <div class="text-xs text-slate-400"><?= h(ucfirst($role)) ?></div>
-                    </div>
-                </div>
-                <a href="logout.php" title="Logout" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors">
-                    <?= navIcon($icons['logout']) ?>
-                </a>
-            </div>
-        </div>
-    </aside>
-
-    <div class="app-main flex-1 lg:ml-64 flex flex-col min-w-0">
-        <header class="h-16 bg-white border-b border-slate-200 sticky top-0 z-20 px-4 sm:px-8 flex items-center justify-between shadow-sm">
-            <?php if ($showSearch): ?>
-                <div class="relative w-full max-w-lg">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                    </span>
-                    <input id="globalSearch" type="text" placeholder="Cari unit mobil, nomor plat, atau customer..."
-                           class="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-slate-700 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
-                </div>
-            <?php else: ?>
-                <div class="font-bold text-slate-900"><?= h($pageTitle ?? '') ?></div>
-            <?php endif; ?>
-
-            <div class="flex items-center gap-3 pl-4">
-                <div class="flex lg:hidden items-center gap-2 text-xs font-semibold">
-                    <?php foreach ($menu as [$key, $label, $href]): ?>
-                        <a href="<?= h($href) ?>" class="px-2.5 py-1.5 rounded-lg <?= ($activePage ?? '') === $key ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600' ?>"><?= h($label) ?></a>
-                    <?php endforeach; ?>
-                    <a href="logout.php" class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600">Logout</a>
-                </div>
-                <div class="text-right hidden xl:block pl-3 border-l border-slate-200">
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="text-right hidden sm:block">
                     <p class="text-xs font-semibold text-slate-800"><?= h($userName) ?></p>
                     <p class="text-[11px] text-slate-500"><?= h(ucfirst($role)) ?></p>
                 </div>
+                <a href="logout.php" title="Logout"
+                   class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200/60 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                    Logout
+                </a>
             </div>
         </header>
 
@@ -236,10 +163,14 @@ function navIcon(string $path, string $cls = 'w-5 h-5'): string
 
 <?php if ($role === 'admin'): ?>
 
+    <!-- Banner -->
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-900 p-8 text-white shadow-xl shadow-indigo-950/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
         <div class="relative z-10">
             <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/30 text-indigo-200 border border-indigo-400/20 inline-flex items-center gap-1.5 mb-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                Sistem Rental Aktif
+            </span>
             <h1 class="text-2xl lg:text-3xl font-extrabold tracking-tight">Kelola Data Mobil &amp; Transaksi</h1>
             <p class="text-indigo-200/80 mt-1 max-w-xl text-sm leading-relaxed">
                 Pantau ketersediaan unit sewa, atur tarif harian, serta proses verifikasi transaksi pelanggan secara real-time.
@@ -254,6 +185,7 @@ function navIcon(string $path, string $cls = 'w-5 h-5'): string
         </div>
     </div>
 
+    <!-- KPI -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
