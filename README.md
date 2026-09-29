@@ -9,3 +9,4 @@ Anggota Kelompok:
 5. Barby Laorena Vincent Tania (434251055)
 6. Prissilya Naela Margareth Siregar (434251071)
 7. Shafilla Anaya Wahyu Nursari (434251039)
+8. Haydan Omar Rabbani (434251063)
