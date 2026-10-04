@@ -1,1 +1,0 @@
-CREATE DATABASE persewaan_mobil_pak_rama ENCODING 'UTF-8';

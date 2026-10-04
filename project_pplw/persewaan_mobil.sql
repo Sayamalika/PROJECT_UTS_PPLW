@@ -1,3 +1,5 @@
+USE persewaan_mobil;
+
 CREATE TABLE IF NOT EXISTS users (
     id_user SERIAL PRIMARY KEY,
     nama VARCHAR(100) NOT NULL,
@@ -19,32 +21,18 @@ CREATE TABLE IF NOT EXISTS mobil (
 
 CREATE TABLE IF NOT EXISTS transaksi (
     id_transaksi SERIAL PRIMARY KEY,
-    id_user INT NOT NULL,
-    id_mobil INT NOT NULL,
+    id_user BIGINT UNSIGNED NOT NULL,
+    id_mobil BIGINT UNSIGNED NOT NULL,
     tanggal_sewa DATE NOT NULL,
     tanggal_kembali DATE NOT NULL,
     total_biaya NUMERIC(10,2) NOT NULL,
-    status_transaksi VARCHAR(20) DEFAULT 'berjalan' CHECK (status_transaksi IN ('berjalan', 'selesai', 'batal')),
+    status_transaksi VARCHAR(20) DEFAULT 'menunggu' CHECK (status_transaksi IN ('menunggu', 'disetujui', 'ditolak', 'selesai')),
+    metode_pembayaran VARCHAR(50),
+    status_pembayaran VARCHAR(30) DEFAULT 'belum_bayar',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_user) REFERENCES users(id_user),
     FOREIGN KEY (id_mobil) REFERENCES mobil(id_mobil)
 );
-
-UPDATE transaksi SET status_transaksi = 'menunggu' WHERE status_transaksi = 'berjalan';
-UPDATE transaksi SET status_transaksi = 'ditolak' WHERE status_transaksi = 'batal';
-
-ALTER TABLE transaksi
-DROP CONSTRAINT transaksi_status_transaksi_check;
-
-ALTER TABLE transaksi
-ALTER COLUMN status_transaksi SET DEFAULT 'menunggu';
-
-ALTER TABLE transaksi
-ADD CONSTRAINT transaksi_status_transaksi_check
-CHECK (status_transaksi IN ('menunggu', 'disetujui', 'ditolak', 'selesai'));
-
-ADD COLUMN metode_pembayaran VARCHAR(50),
-ADD COLUMN status_pembayaran VARCHAR(30) DEFAULT 'belum_bayar';
 
 INSERT INTO users (nama, email, password, role)
 VALUES (
@@ -59,3 +47,15 @@ VALUES
     ('Toyota Avanza', 'L 1234 ABC', 350000, 'tersedia', 'avanza.jpg'),
     ('Honda Brio', 'L 5678 DEF', 300000, 'tersedia', 'brio.jpg'),
     ('Suzuki Ertiga', 'L 9012 GHI', 400000, 'tersedia', 'ertiga.jpg');
+    
+    SELECT *
+    FROM users;
+    
+    ALTER TABLE transaksi
+ADD COLUMN metode_pembayaran VARCHAR(50),
+ADD COLUMN status_pembayaran VARCHAR(30) DEFAULT 'belum_bayar';
+
+ALTER TABLE transaksi DROP CONSTRAINT transaksi_chk_1;
+
+ALTER TABLE transaksi ADD CONSTRAINT transaksi_chk_new 
+CHECK (status_transaksi IN ('menunggu', 'disetujui', 'ditolak', 'selesai', 'berjalan', 'batal'));
